@@ -1,0 +1,13 @@
+[
+    { "name": "pot", "size": 2, "coordinates": { "x": 2, "y": 4 } },
+    { "name": "plant", "size": 2, "coordinates": { "x": 10, "y": 10 } },
+    { "name": "robot", "size": 8, "coordinates": { "x": 1500, "y": 800 } },
+    { "name": "SIMA", "size": 4, "coordinates": { "x": 2000, "y": 1200 } },
+    { "name": "pot", "size": 2, "coordinates": { "x": 2500, "y": 1500 } },
+    { "name": "plant", "size": 5, "coordinates": { "x": 700, "y": 1700 } },
+    { "name": "robot", "size": 8, "coordinates": { "x": 1200, "y": 300 } },
+    { "name": "SIMA", "size": 4, "coordinates": { "x": 1800, "y": 900 } },
+    { "name": "pot", "size": 2, "coordinates": { "x": 2200, "y": 1600 } },
+    { "name": "plant", "size": 5, "coordinates": { "x": 2800, "y": 1900 } }
+  ]
+  
