@@ -14,15 +14,17 @@ using namespace std;
 class AStarAlgorithm {
 public:
     // Constructors
-    AStarAlgorithm(int xSize, int ySize, int obstacleCount);
+    AStarAlgorithm(int xSize, int ySize, int obstacleCount,int radiusMax=1);
     AStarAlgorithm(int xSize, int ySize);
 
     // Public Methods
     vector<pair<int, int>> findPath(pair<int, int> start, pair<int, int> goal);
     void placePoints(int x, int y, int radius);
+    void removePoint(int x, int y, int radius);
     void printPath(const vector<pair<int, int>>& path) const;
     void displayGrid() const;
     void parseJsonFile(const std::string& filePath);
+    void clearGridData();
     void printData();
     void useData();
 
@@ -49,6 +51,7 @@ private:
 
         struct Object {
         std::string name;
+        int id;
         int size;
         int x;
         int y;
@@ -58,26 +61,27 @@ private:
     int calculateHeuristic(int currentX, int currentY, int goalX, int goalY);
     vector<pair<int, int>> aStar(pair<int, int> start, pair<int, int> goal);
     vector<vector<int>> createGrid(int xSize, int ySize);
-    void addRandomObstacles(int obstacleCount);
+    void addRandomObstacles(int obstacleCount,int radiusMax);
 
     // Private Members
     int xSize;
     int ySize;
     vector<vector<int>> grid_;
     vector<Object> jsonData;
+    int id = 0;
 
 };
 
 AStarAlgorithm::Node::Node(int x, int y, int cost, int heuristic)
     : x(x), y(y), cost(cost), heuristic(heuristic) {}
 
-AStarAlgorithm::AStarAlgorithm(int xSize, int ySize, int obstacleCount)
-    : grid_(createGrid(xSize, ySize)), xSize(xSize), ySize(ySize) {
-    addRandomObstacles(obstacleCount);
+AStarAlgorithm::AStarAlgorithm(int xSize, int ySize, int obstacleCount,int radiusMax)
+    : grid_(createGrid(xSize+1, ySize+1)), xSize(xSize), ySize(ySize) {
+    addRandomObstacles(obstacleCount,radiusMax);
 }
 
 AStarAlgorithm::AStarAlgorithm(int xSize, int ySize)
-    : grid_(createGrid(xSize, ySize)), xSize(xSize), ySize(ySize) {}
+    : grid_(createGrid(xSize+1, ySize+1)), xSize(xSize), ySize(ySize) {}
 
 vector<pair<int, int>> AStarAlgorithm::findPath(pair<int, int> start, pair<int, int> goal) {
     return aStar(start,goal);
@@ -101,6 +105,29 @@ void AStarAlgorithm::placePoints(int x, int y, int radius) {
             // Check if the squared distance is less than or equal to the squared radius
             if (distanceSquared <= radiusSquared) {
                 grid_[i][j] = 1;
+            }
+        }
+    }
+}
+
+void AStarAlgorithm::removePoint(int x, int y, int radius) {
+    int xMin = max(0, x - radius);
+    int xMax = min(xSize - 1, x + radius);
+    int yMin = max(0, y - radius);
+    int yMax = min(ySize - 1, y + radius);
+
+    // Calculate squared radius
+    int radiusSquared = radius * radius;
+    for (int i = xMin; i <= xMax; ++i) {
+        for (int j = yMin; j <= yMax; ++j) {
+            // Calculate squared distance
+            int dx = i - x;
+            int dy = j - y;
+            int distanceSquared = dx * dx + dy * dy;
+
+            // Check if the squared distance is less than or equal to the squared radius
+            if (distanceSquared <= radiusSquared) {
+                grid_[i][j] = 0;
             }
         }
     }
@@ -143,6 +170,8 @@ void AStarAlgorithm::parseJsonFile(const std::string& filePath) {
         obj.size = object["size"].asInt();
         obj.x = object["coordinates"]["x"].asInt();
         obj.y = object["coordinates"]["y"].asInt();
+        obj.id = this->id;
+        this->id = id+1;
 
         // Store the object in the vector
         this->jsonData.push_back(obj);
@@ -159,6 +188,13 @@ void AStarAlgorithm::printData() {
 void AStarAlgorithm::useData() {
         for(const auto& obj : this->jsonData){
             this->placePoints(obj.x,obj.y,obj.size);
+        }
+}
+
+void AStarAlgorithm::clearGridData() {
+        for(const auto& obj : this->jsonData){
+            this->removePoint(obj.x,obj.y,obj.size);
+            this->jsonData.clear();
         }
 }
 
@@ -230,15 +266,27 @@ vector<vector<int>> AStarAlgorithm::createGrid(int xSize, int ySize) {
     return grid;
 }
 
-void AStarAlgorithm::addRandomObstacles(int obstacleCount) {
+void AStarAlgorithm::addRandomObstacles(int obstacleCount,int radiusMax) {
     random_device rd;
     mt19937 gen(rd());
     uniform_int_distribution<int> randX(0, grid_.size() - 1);
     uniform_int_distribution<int> randY(0, grid_[0].size() - 1);
+    uniform_int_distribution<int> randRadius(1, radiusMax);
 
     for (int i = 0; i < obstacleCount; ++i) {
         int x = randX(gen);
         int y = randY(gen);
-        grid_[x][y] = 1;
+        int radius = randRadius(gen);
+
+        Object obj;
+        obj.name = "random_object";
+        obj.size = radius;
+        obj.x = x;
+        obj.y = y;
+        obj.id = this->id;
+        this->id = id+1;
+
+        // Store the object in the vector
+        this->jsonData.push_back(obj);
     }
 }

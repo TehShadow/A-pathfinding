@@ -6,22 +6,24 @@ int main() {
 
     // Define start and goal points
     pair<int, int> start = {0, 0};
-    pair<int, int> goal = {10, 10};
+    pair<int, int> goal = {50, 50};
 
     // Specify the file path for JSON data
     string filePath = "dummyObjects.json";
 
     // Create an instance of the AStarAlgorithm class with a 15x15 grid
-    AStarAlgorithm aStarInstance(15, 15);
+    AStarAlgorithm aStarInstance(50, 50,20,4);
 
     // Parse object data from the specified JSON file
-    aStarInstance.parseJsonFile(filePath);
+    // aStarInstance.parseJsonFile(filePath);
 
     // Print the parsed object data
     aStarInstance.printData();
 
     // Use the parsed data to place obstacles on the grid
     aStarInstance.useData();
+
+    // aStarInstance.clearGridData();
 
     // Find the path from the start to the goal
     vector<pair<int, int>> path = aStarInstance.findPath(start, goal);
